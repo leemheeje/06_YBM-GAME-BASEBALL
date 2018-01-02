@@ -18,7 +18,7 @@
 	<div class="blgm_wrap">
 		<div class="blgm_in animated" style="background: #fff;">
 			<div class="target_zone targetZone"></div>
-			<div class="target_ball targetBall"></div>
+			<div class="target_ball_wrap targetBallWrap"> </div>
 			<a href="#;" class="target_button targetButton"></a>
 		</div>
 		<!-- 게임 공통 : S -->
@@ -63,6 +63,7 @@
 			outCount: 5,
 		}, obj);
 		this.targetButton = '.targetButton';
+		this.targetBallWrap = '.targetBallWrap';
 		this.targetZoneOffset = {};
 		this.targetBallOffset = {};
 		this.crrtCls = 0;
@@ -155,9 +156,21 @@
 			var _this = this;
 			var bool = true;
 			var cnt = 0;
-			clearInterval(this.loop);
+			$(this.targetBallWrap).append('<div class="target_ball ' + this.clsFormat(this.obj.targetBall) + '" data-ball-count="' + this.ballCount + '"></div>');
+			$(_this.obj.targetBall + '[data-ball-count="' + this.ballCount + '"]').stop().animate({
+				'left': 800,
+			}, this.aniCallb({
+				'duration': 1300,
+				'easing' : 'easeInQuad',
+				'step': function(t) {
+					console.log(t);
+				},
+				'complete': function() {
+					$(this).hide();
+				}
+			}));
 			this.ballCount++;
-			this.loop = setInterval(function() {
+			/*this.loop = setInterval(function() {
 				$(_this.obj.targetBall).css({
 					'left': cnt,
 				});
@@ -182,7 +195,7 @@
 						_this.targetBallMove();
 					}, _this.retimeBall);
 				}
-			}, 1);
+			}, 1);*/
 			this.targetBallMoveAfter();
 		},
 		targetOffset: function() {

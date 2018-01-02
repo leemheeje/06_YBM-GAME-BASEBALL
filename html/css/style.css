@@ -11,17 +11,33 @@ html, body{height: 100%;}
 .teethEl.active{background: blue !important; height: 1px;}*/
 /*.blgm_wrap{max-width: 1280px; padding: 67px 15px 15px 11px; margin: 0 auto; height: 720px; background: #65a9e0 url(../images/breaktime.png) no-repeat left 10px; position: relative; }*/
 .blgm_wrap{max-width: 1280px; padding: 67px 15px 15px 11px; margin: 0 auto; height: 720px; background: #65a9e0 url(../images/breaktime.png) no-repeat left 10px; position: relative; }
-.blgm_in{height: 100%;  position: relative;  overflow: hidden;}
+.blgm_in{height: 100%;  position: relative;  overflow: hidden; background: url(../images/tnbg_02.png) no-repeat left top;}
 
-
-.target_zone{width: 50px; height: 50px; position: absolute; right: 50px; top: 300px; background: red;}
-.target_ball{width: 5px; height: 20px; position: absolute; left: 0; top: 325px; background: blue; border-radius: 50%;}
-.target_ball{transition: zoom 2s ease-out;}
+.rotate{position: absolute; right: 267px; left: 237px; top: 257px; display: block; transform:  skew(-10deg) rotate(10deg); transform-origin: left top; }
+.target_ball_wrap{}
+.target_zone{width: 50px; height: 50px; position: absolute; right: 0; top: 0; background: red; transform: rotate(-20deg); transform-origin: left top; }
+.target_ball{transform: skew(10deg) rotate(0deg); transform-origin: left top; }
+.app_target_ball{transform: skew(10deg) rotate(20deg); transform-origin: left top; }
+.target_ball, 
+.app_target_ball{width: 5px; height: 20px; position: absolute; left: 0; top: 0; background: blue; border-radius: 50%;}
+.target_ball{transition: scale;}
 .target_button{width: 100px; height: 100px; background: yellow; position: absolute; right: 0; bottom: 0;}
 .anta01 {animation: anta01 2s;}
 .anta02{animation: anta02 2s;}
-.homerun{animation: homerun 2s ease-out;}
 
+.taScore:before{content: '스코어: '; display: inline-block; width: 80px;}
+.taPaul:before{content: '파울: '; display: inline-block; width: 80px;}
+.taOut:before{content: '아웃: '; display: inline-block; width: 80px;}
+.taSpeed:before{content: '스피드: '; display: inline-block; width: 80px;}
+.app_target_ball{display: none; left: 30px; top: 30px; }
+/*.homerun{ animation: homerun 3s ease-out; transform: scale(1);}*/
+/*.homerun{animation: homerun 2s ease-out;}*/
+@keyframes homerun {
+		0%{transform: translate(0,0);}
+		60%{transform: translate(-600px,-400px) ;}
+		80%{transform: translate(-680px,0px) ;}
+		100%{transform: translate(-720px,0px) scale(.1);}
+}
 @keyframes anta01 {
 	0% {top: 10%; left: 100px; }
 	20% {top: calc(10% + 50px); }
@@ -38,18 +54,15 @@ html, body{height: 100%;}
 	80% {top: calc(10% - 0px); }
 	100% {top: calc(10% - 0px); left: 800px; }
 }
-@keyframes homerun {
-	0% {top: 50%; left: 0; }
-	10% {top: calc(50% - 120px);; }
-	30% {top: calc(50% + 150px);; }
-	40% {top: calc(50% - 160px);; }
-	50% {top: calc(50% + 170px);; }
-	60% {top: calc(50% - 180px);; }
-	70% {top: calc(50% + 170px);; }
-	80% {top: calc(50% - 160px);; }
-	90% {top: calc(50% + 150px);; }
-	100% {top: calc(50% - 150px);; left: 100%; }
+@keyframes paul01 {
+	0% {top: 10%; left: 100px; }
+	20% {top: calc(10% + 50px); }
+	40% {top: calc(10% + 0px); }
+	60% {top: calc(10% + 25px); }
+	80% {top: calc(10% + 0px); }
+	100% {top: calc(10% + 0px); left: 800px; }
 }
+
 
 
 /**/

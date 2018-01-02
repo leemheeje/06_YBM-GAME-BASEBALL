@@ -5,21 +5,32 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=1280">
 	<title>HitBall</title>
-	<script type="text/javascript">
-	if (location.href.indexOf(':8000') != -1) document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
-	</script>
 	<script src="./js/plugin/jquery-1.9.1.min.js"></script>
 	<script src="./js/plugin/jquery.transform.js"></script>
 	<script src="./js/plugin/jquery.easing.1.3.js"></script>
 	<link rel="stylesheet" type="text/css" href="./css/style.css">
+	<script type="text/javascript">
+	if (location.href.indexOf(':8000') != -1) document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
+	</script>
 </head>
 
 <body>
 	<div class="blgm_wrap">
-		<div class="blgm_in animated" style="background: #fff;">
-			<div class="target_zone targetZone"></div>
-			<div class="target_ball_wrap targetBallWrap"> </div>
+		<div class="blgm_in animated">
+			<div class="rotate">
+				<div class="target_zone targetZone">
+					<div class="app_target_ball " style="display: block; width: 40px; height: 40px;"></div>
+				</div>
+				<div class="target_ball_wrap">
+					<div class="target_ball targetBall"></div>
+				</div>
+			</div>
 			<a href="#;" class="target_button targetButton"></a>
+			<div class="taScore"></div>
+			<div class="taPaul"></div>
+			<div class="taOut"></div>
+			<div class="taSpeed"></div>
+			<div class="taPop"></div>
 		</div>
 		<!-- 게임 공통 : S -->
 		<div id="ybm_game_2_ready" class="game_ready">
@@ -47,31 +58,42 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-	$('.asdf').click(function() {
+	$('.app_target_ball').click(function() {
 		$(this).addClass('homerun'); //anta01 anta02 homerun
 	}).click();
 	//var gamePath = Game.gamePath[Game.gameCode]; //폴더경로 변경값
 	var HitBall = function(obj) {
 		this.obj = $.extend(true, {
 			targetZone: '.targetZone',
-			targetZoneSize: 80,
+			targetZoneSize: 100,
 			maxGamePoint: 25,
 			targetBall: '.targetBall',
 			targetBallSize: 40,
-			level: 3,
+			level: 1,
+			ranBallCount: 5,
 			keybind: 32,
-			outCount: 5,
+			maxOutCount: 50,
 		}, obj);
 		this.targetButton = '.targetButton';
-		this.targetBallWrap = '.targetBallWrap';
+		this.appTargetBall = '.appTargetBall';
 		this.targetZoneOffset = {};
 		this.targetBallOffset = {};
+		this.exclevel = 0;
 		this.crrtCls = 0;
 		this.retimeBall = 1500;
+		this.gamePoint = 0;
 		this.ballCount = 0;
 		this.ballScore = 0;
 		this.ballOut = 0;
+		this.ballSpeed = 0;
+		this.ballOutBool = false;
 		this.ballPaul = 0;
+		this.iniBallSpeed = 80;
+		this.taScore = '.taScore';
+		this.taPaul = '.taPaul';
+		this.taOut = '.taOut';
+		this.taSpeed = '.taSpeed';
+		this.taTextArry = ['홈런', '안타', '아웃', '파울'];
 		this.loop = function() {};
 		this.sound = {
 			bool: true,
@@ -91,6 +113,7 @@
 		set: function() {
 			var _this = this;
 			this.targetOffset().zone();
+			this.targetBallMoveAfter();
 			this.targetBallMove(this.obj.level);
 		},
 		bind: function() {
@@ -118,16 +141,23 @@
 			} else {
 				this.crrtCls = 4;
 			}
-			this.targetEffectCallb(this.crrtCls);
+			this.ballOutBool = false;
+			if (this.crrtCls != 3) {
+				$(this.obj.targetZone).append('<div class="app_target_ball ' + this.clsFormat(this.appTargetBall) + '" style="width: ' + this.obj.targetBallSize + 'px; height: ' + this.obj.targetBallSize + 'px; " data-act-ball="' + this.ballCount + '"></div>');
+			}
+			this.targetEffectCallb();
 		},
-		targetEffectCallb: function(vn) { //1 : 홈런 , 2: 안타 ,3:아웃,4:파울
+		targetEffectCallb: function() { //1 : 홈런 , 2: 안타 ,3:아웃,4:파울
 			var _this = this;
-			switch (vn) {
+			var clsn = '';
+			switch (this.crrtCls) {
 				case 1: //홈런
 					this.ballScore += 100;
+					clsn = 'homerun';
 					break;
 				case 2: //안타
 					this.ballScore += 10;
+					clsn = 'anta01';
 					break;
 				case 3: //아웃
 					this.ballOut += 1;
@@ -138,9 +168,11 @@
 						this.ballOut += 1;
 						this.ballPaul = 0;
 					}
+					clsn = 'paul01';
 					break;
 			}
-
+			$(this.appTargetBall + '[data-act-ball="' + this.ballCount + '"]').show().addClass(clsn);
+			$('.taPop').text(this.taTextArry[this.crrtCls - 1]);
 		},
 		aniCallb: function(cf) {
 			return $.extend(false, {
@@ -150,32 +182,48 @@
 			}, cf);
 		},
 		targetBallMoveAfter: function() {
-
+			$(this.taScore).text(this.ballScore);
+			$(this.taOut).text(this.ballOut);
+			$(this.taPaul).text(this.ballPaul);
+			$(this.taSpeed).text(this.ballSpeed);
+		},
+		excLevelFun: function(lv) {
+			var lv = Math.round(lv);
+			var maxlv = lv + lv;
+			var arry = [];
+			for (var i = 0; i <= maxlv; i++) {
+				arry.push(i);
+			}
+			var rand = Math.floor(Math.random() * arry.length);
+			this.exclevel = this.obj.level + (arry[rand] / arry.length);
+			this.ballSpeed = Math.round(((arry[rand] / arry.length) + 1) * this.iniBallSpeed);
 		},
 		targetBallMove: function() {
 			var _this = this;
 			var bool = true;
 			var cnt = 0;
-			$(this.targetBallWrap).append('<div class="target_ball ' + this.clsFormat(this.obj.targetBall) + '" data-ball-count="' + this.ballCount + '"></div>');
-			$(_this.obj.targetBall + '[data-ball-count="' + this.ballCount + '"]').stop().animate({
-				'left': 800,
-			}, this.aniCallb({
-				'duration': 1300,
-				'easing' : 'easeInQuad',
-				'step': function(t) {
-					console.log(t);
-				},
-				'complete': function() {
-					$(this).hide();
-				}
-			}));
+			this.exclevel = this.obj.level;
+			this.ballOutBool = true;
+			this.excLevelFun(this.obj.ranBallCount);
+			clearInterval(this.loop);
+			if (this.ballOut >= this.obj.maxOutCount) {
+				//this.gameFinishFun();
+				return;
+			}
 			this.ballCount++;
-			/*this.loop = setInterval(function() {
+			this.loop = setInterval(function() {
 				$(_this.obj.targetBall).css({
 					'left': cnt,
 				});
-				cnt += _this.obj.level;
+				cnt += _this.exclevel + Math.abs(cnt * .02);
 				_this.targetOffset().ball();
+				var z = _this.targetZoneOffset;
+			var b = _this.targetBallOffset;
+				if ((b.left >= z.left && b.right <= z.right) || ((b.left + (_this.obj.targetBallSize / 2)) >= z.left && (b.right - (_this.obj.targetBallSize / 2)) <= z.right)) {
+					$('.targetZone').css('background' , 'green');
+				} else{
+					$('.targetZone').css('background' , 'red');
+				}
 				if (cnt >= _this.targetZoneOffset.right) {
 					$(_this.obj.targetBall).animate({
 						'opacity': 0,
@@ -187,6 +235,10 @@
 								'left': 0,
 								'opacity': 1,
 							});
+							if (_this.ballOutBool) {
+								_this.crrtCls = 3;
+								_this.targetEffectCallb(3);
+							}
 						}
 					});
 					_this.targetOffset().ball(false);
@@ -195,7 +247,8 @@
 						_this.targetBallMove();
 					}, _this.retimeBall);
 				}
-			}, 1);*/
+			}, 15 / this.exclevel);
+
 			this.targetBallMoveAfter();
 		},
 		targetOffset: function() {
@@ -237,7 +290,7 @@
 		},
 		gamePiontFun: function() {
 			this.getSound(this.sound.lst[2]);
-			this.gamePoint = Math.round((this.successCount.length / this.obj.teethLength) * this.obj.maxGamePoint);
+			this.gamePoint = Math.round((this.ballScore / (this.ballCount * 100)) * this.obj.maxGamePoint);
 			Game.point = this.gamePoint;
 		},
 		setSound: function() {

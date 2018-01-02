@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=1280">
-	<title>Crocodile</title>
+	<title>HitBall</title>
 	<script type="text/javascript">
 	if (location.href.indexOf(':8000') != -1) document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
 	</script>
@@ -46,48 +46,31 @@
 			<span class="pop_img popMissImg"></span>
 		</div>
 	</div>
-	<button class="asdf">adf</button>
-	<style type="text/css">
-	.asdf {
-		position: relative;
-		left: 0;
-		top: 0;
-	}
-
-	.asdf.acv {
-		animation: aa .7s ease-out;
-	}
-
-	@keyframes aa {
-		0% {
-			top: 0px;
-			left: 0
-		}
-		10% {
-			top: 30px;
-		}
-		100% {
-			top: 0px;
-			left: 300px
-		}
-	}
-	</style>
 	<script type="text/javascript">
-	$('.asdf').click(function() { $(this).addClass('acv') }).click();
+	$('.asdf').click(function() {
+		$(this).addClass('homerun'); //anta01 anta02 homerun
+	}).click();
 	//var gamePath = Game.gamePath[Game.gameCode]; //폴더경로 변경값
-	var BaseBall = function(obj) {
+	var HitBall = function(obj) {
 		this.obj = $.extend(true, {
 			targetZone: '.targetZone',
 			targetZoneSize: 80,
 			maxGamePoint: 25,
 			targetBall: '.targetBall',
-			targetBallSize: 20,
-			level: 1,
+			targetBallSize: 40,
+			level: 3,
 			keybind: 32,
+			outCount: 5,
 		}, obj);
 		this.targetButton = '.targetButton';
 		this.targetZoneOffset = {};
 		this.targetBallOffset = {};
+		this.crrtCls = 0;
+		this.retimeBall = 1500;
+		this.ballCount = 0;
+		this.ballScore = 0;
+		this.ballOut = 0;
+		this.ballPaul = 0;
 		this.loop = function() {};
 		this.sound = {
 			bool: true,
@@ -98,7 +81,7 @@
 		};
 		this.init();
 	};
-	BaseBall.prototype = {
+	HitBall.prototype = {
 		init: function() {
 			this.setSound();
 			this.set();
@@ -125,34 +108,47 @@
 		targetEffect: function() {
 			var z = this.targetZoneOffset;
 			var b = this.targetBallOffset;
-			console.log(z)
-			console.log(b)
-			if (b.left >= z.left && b.right <= z.right) { //홈런
-				this.targetEffectCallb(1);
-			} else if ((b.left + (this.obj.targetBallSize / 2)) >= z.left && (b.right - (this.obj.targetBallSize / 2)) <= z.right) { //안타
-				this.targetEffectCallb(2);
-			} else if (b.left < (z.left - this.obj.targetBallSize) || b.right > (z.right + this.obj.targetBallSize)) { //아웃
-				this.targetEffectCallb(3);
-			} else { //파울
-				this.targetEffectCallb(4);
+			if (b.left >= z.left && b.right <= z.right) {
+				this.crrtCls = 1;
+			} else if ((b.left + (this.obj.targetBallSize / 2)) >= z.left && (b.right - (this.obj.targetBallSize / 2)) <= z.right) {
+				this.crrtCls = 2;
+			} else if (b.left < (z.left - this.obj.targetBallSize) || b.right > (z.right + this.obj.targetBallSize)) {
+				this.crrtCls = 3;
+			} else {
+				this.crrtCls = 4;
 			}
+			this.targetEffectCallb(this.crrtCls);
 		},
 		targetEffectCallb: function(vn) { //1 : 홈런 , 2: 안타 ,3:아웃,4:파울
 			var _this = this;
 			switch (vn) {
-				case 1:
-					console.log('홈런')
+				case 1: //홈런
+					this.ballScore += 100;
 					break;
-				case 2:
-					console.log('안타')
+				case 2: //안타
+					this.ballScore += 10;
 					break;
-				case 3:
-					console.log('아웃')
+				case 3: //아웃
+					this.ballOut += 1;
 					break;
-				case 4:
-					console.log('파울')
+				case 4: //파울
+					this.ballPaul += 1;
+					if (this.ballPaul == 2) {
+						this.ballOut += 1;
+						this.ballPaul = 0;
+					}
 					break;
 			}
+
+		},
+		aniCallb: function(cf) {
+			return $.extend(false, {
+				'duration': 300,
+				'easing': 'swing',
+				'complete': function() {},
+			}, cf);
+		},
+		targetBallMoveAfter: function() {
 
 		},
 		targetBallMove: function() {
@@ -160,9 +156,10 @@
 			var bool = true;
 			var cnt = 0;
 			clearInterval(this.loop);
+			this.ballCount++;
 			this.loop = setInterval(function() {
 				$(_this.obj.targetBall).css({
-					'left': cnt
+					'left': cnt,
 				});
 				cnt += _this.obj.level;
 				_this.targetOffset().ball();
@@ -175,18 +172,18 @@
 						'complete': function() {
 							$(this).css({
 								'left': 0,
-								'opacity': 1
+								'opacity': 1,
 							});
-							//$(_this.targetButton).click();
 						}
 					});
 					_this.targetOffset().ball(false);
 					clearInterval(_this.loop);
 					setTimeout(function() {
 						_this.targetBallMove();
-					}, 1500);
+					}, _this.retimeBall);
 				}
 			}, 1);
+			this.targetBallMoveAfter();
 		},
 		targetOffset: function() {
 			var _this = this;
@@ -266,10 +263,10 @@
 	var Game = {
 		callback: function() {}
 	};
-	var baseball = null;
+	var hitball = null;
 	$('#start_game_2').off().on('click', function() {
 		$('#ybm_game_2_ready').hide();
-		baseball = new BaseBall();
+		hitball = new HitBall();
 	}).click();
 	//끝났을때
 	//cny 마지막 Next버튼 클릭시 LMS에 값 저장하기

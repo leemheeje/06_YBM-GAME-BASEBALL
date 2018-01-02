@@ -10,13 +10,47 @@ html, body{height: 100%;}
 .teethEl.cavity:after{content: none; width: 20px; height: 20px; position: absolute; left: 15px; top: 15px; background: red;}
 .teethEl.active{background: blue !important; height: 1px;}*/
 /*.blgm_wrap{max-width: 1280px; padding: 67px 15px 15px 11px; margin: 0 auto; height: 720px; background: #65a9e0 url(../images/breaktime.png) no-repeat left 10px; position: relative; }*/
-.blgm_wrap{max-width: 1280px; padding: 67px 800px 15px 11px; margin: 0 auto; height: 720px; background: #65a9e0 url(../images/breaktime.png) no-repeat left 10px; position: relative; }
+.blgm_wrap{max-width: 1280px; padding: 67px 15px 15px 11px; margin: 0 auto; height: 720px; background: #65a9e0 url(../images/breaktime.png) no-repeat left 10px; position: relative; }
 .blgm_in{height: 100%;  position: relative;  overflow: hidden;}
 
 
 .target_zone{width: 50px; height: 50px; position: absolute; right: 50px; top: 300px; background: red;}
-.target_ball{width: 20px; height: 20px; position: absolute; left: 0; top: 325px; background: blue;}
+.target_ball{width: 5px; height: 20px; position: absolute; left: 0; top: 325px; background: blue; border-radius: 50%;}
+.target_ball{transition: zoom 2s ease-out;}
 .target_button{width: 100px; height: 100px; background: yellow; position: absolute; right: 0; bottom: 0;}
+.anta01 {animation: anta01 2s;}
+.anta02{animation: anta02 2s;}
+.homerun{animation: homerun 2s ease-out;}
+
+@keyframes anta01 {
+	0% {top: 10%; left: 100px; }
+	20% {top: calc(10% + 50px); }
+	40% {top: calc(10% + 0px); }
+	60% {top: calc(10% + 25px); }
+	80% {top: calc(10% + 0px); }
+	100% {top: calc(10% + 0px); left: 800px; }
+}
+@keyframes anta02 {
+	0% {top: 10%; left: 100px; }
+	20% {top: calc(10% - 50px); }
+	40% {top: calc(10% - 0px); }
+	60% {top: calc(10% - 25px); }
+	80% {top: calc(10% - 0px); }
+	100% {top: calc(10% - 0px); left: 800px; }
+}
+@keyframes homerun {
+	0% {top: 50%; left: 0; }
+	10% {top: calc(50% - 120px);; }
+	30% {top: calc(50% + 150px);; }
+	40% {top: calc(50% - 160px);; }
+	50% {top: calc(50% + 170px);; }
+	60% {top: calc(50% - 180px);; }
+	70% {top: calc(50% + 170px);; }
+	80% {top: calc(50% - 160px);; }
+	90% {top: calc(50% + 150px);; }
+	100% {top: calc(50% - 150px);; left: 100%; }
+}
+
 
 /**/
 .hidden{position: absolute; left: -9999em;}

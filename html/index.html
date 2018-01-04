@@ -57,9 +57,58 @@
 			<span class="pop_img popMissImg"></span>
 		</div>
 	</div>
+	<button class="asdf">asdfsdf</button>
+	<button class="bbbbb">asdfsdf</button>
+	<style type="text/css">
+	.asdf {
+		position: relative;
+	}
+	</style>
 	<script type="text/javascript">
-	$('.app_target_ball').click(function() {
-		$(this).addClass('homerun'); //anta01 anta02 homerun
+	test = {
+		loop: null,
+		dir: 2, //1 : 우측하단 , 2: 좌측상단
+		vvx: 0,
+		vvy: 0,
+		vx: 0,
+		vy: 0,
+		gravity: .05,
+		test: 0,
+		init: function($this) {
+			var _this = this;
+			this.el = $this;
+			this.update();
+			$('.bbbbb').click(function() {
+				_this.test = 1;
+			});
+		},
+		move: function() {
+			this.el.css({
+				'left': this.vvx,
+				'top': this.vvy,
+			});
+		},
+		update: function() {
+			var _this = this;
+			var pos = {
+				x: _this.el[0].offsetLeft,
+				y: _this.el[0].offsetTop
+			};
+			var x = 1;
+			var y = 1;
+			console.log(y + _this.gravity);
+			this.loop = setInterval(function() {
+				if (_this.vvy > 100) {
+					y += _this.gravity
+				}
+				_this.vvx += x;
+				_this.vvy += y;
+				_this.move();
+			}, 100);
+		},
+	};
+	$('.asdf').click(function() {
+		test.init($(this));
 	}).click();
 	//var gamePath = Game.gamePath[Game.gameCode]; //폴더경로 변경값
 	var HitBall = function(obj) {
@@ -72,7 +121,7 @@
 			level: 1,
 			ranBallCount: 5,
 			keybind: 32,
-			maxOutCount: 50,
+			maxOutCount: 5,
 		}, obj);
 		this.targetButton = '.targetButton';
 		this.appTargetBall = '.appTargetBall';
@@ -80,8 +129,7 @@
 		this.targetBallOffset = {};
 		this.exclevel = 0;
 		this.crrtCls = 0;
-		this.retimeBall = 1500;
-		this.gamePoint = 0;
+		this.reTimeBall = 1500;
 		this.ballCount = 0;
 		this.ballScore = 0;
 		this.ballOut = 0;
@@ -205,12 +253,12 @@
 			this.exclevel = this.obj.level;
 			this.ballOutBool = true;
 			this.excLevelFun(this.obj.ranBallCount);
-			clearInterval(this.loop);
 			if (this.ballOut >= this.obj.maxOutCount) {
 				//this.gameFinishFun();
 				return;
 			}
 			this.ballCount++;
+			clearInterval(this.loop);
 			this.loop = setInterval(function() {
 				$(_this.obj.targetBall).css({
 					'left': cnt,
@@ -218,11 +266,11 @@
 				cnt += _this.exclevel + Math.abs(cnt * .02);
 				_this.targetOffset().ball();
 				var z = _this.targetZoneOffset;
-			var b = _this.targetBallOffset;
+				var b = _this.targetBallOffset;
 				if ((b.left >= z.left && b.right <= z.right) || ((b.left + (_this.obj.targetBallSize / 2)) >= z.left && (b.right - (_this.obj.targetBallSize / 2)) <= z.right)) {
-					$('.targetZone').css('background' , 'green');
-				} else{
-					$('.targetZone').css('background' , 'red');
+					$('.targetZone').css('background', 'green');
+				} else {
+					$('.targetZone').css('background', 'red');
 				}
 				if (cnt >= _this.targetZoneOffset.right) {
 					$(_this.obj.targetBall).animate({

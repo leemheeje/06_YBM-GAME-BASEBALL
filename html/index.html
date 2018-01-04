@@ -41,7 +41,8 @@
 		</div>
 		<div id="game_2_next" class="game_over">
 			<div>
-				<p><em id="game_2_point">100</em><em>포인트</em>가 적립되었습니다.</em>
+				<p>
+					<em id="game_2_point">100</em><em>포인트</em>가 적립되었습니다.</em>
 				</p>
 				<button id="game_2_over">다음</button>
 			</div>
@@ -121,7 +122,7 @@
 			level: 1,
 			ranBallCount: 5,
 			keybind: 32,
-			maxOutCount: 5,
+			maxOutCount: 50,
 		}, obj);
 		this.targetButton = '.targetButton';
 		this.appTargetBall = '.appTargetBall';
@@ -129,7 +130,8 @@
 		this.targetBallOffset = {};
 		this.exclevel = 0;
 		this.crrtCls = 0;
-		this.reTimeBall = 1500;
+		this.retimeBall = 1500;
+		this.gamePoint = 0;
 		this.ballCount = 0;
 		this.ballScore = 0;
 		this.ballOut = 0;
@@ -253,12 +255,12 @@
 			this.exclevel = this.obj.level;
 			this.ballOutBool = true;
 			this.excLevelFun(this.obj.ranBallCount);
+			clearInterval(this.loop);
 			if (this.ballOut >= this.obj.maxOutCount) {
 				//this.gameFinishFun();
 				return;
 			}
 			this.ballCount++;
-			clearInterval(this.loop);
 			this.loop = setInterval(function() {
 				$(_this.obj.targetBall).css({
 					'left': cnt,

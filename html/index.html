@@ -108,9 +108,7 @@
 			}, 100);
 		},
 	};
-	$('.asdf').click(function() {
-		test.init($(this));
-	}).click();
+	$('.asdf').click(function() {}).click();
 	//var gamePath = Game.gamePath[Game.gameCode]; //폴더경로 변경값
 	var HitBall = function(obj) {
 		this.obj = $.extend(true, {
@@ -118,9 +116,9 @@
 			targetZoneSize: 100,
 			maxGamePoint: 25,
 			targetBall: '.targetBall',
-			targetBallSize: 40,
-			level: 1,
-			ranBallCount: 5,
+			targetBallSize: 81,
+			level: 2,
+			ranBallCount: 7,
 			keybind: 32,
 			maxOutCount: 50,
 		}, obj);
@@ -139,6 +137,7 @@
 		this.ballOutBool = false;
 		this.ballPaul = 0;
 		this.iniBallSpeed = 80;
+		this.ballCountMotion = false;
 		this.taScore = '.taScore';
 		this.taPaul = '.taPaul';
 		this.taOut = '.taOut';
@@ -163,7 +162,7 @@
 		set: function() {
 			var _this = this;
 			this.targetOffset().zone();
-			this.targetBallMoveAfter();
+			this.targetOffset().ball();
 			this.targetBallMove(this.obj.level);
 		},
 		bind: function() {
@@ -237,68 +236,62 @@
 			$(this.taPaul).text(this.ballPaul);
 			$(this.taSpeed).text(this.ballSpeed);
 		},
-		excLevelFun: function(lv) {
-			var lv = Math.round(lv);
-			var maxlv = lv + lv;
-			var arry = [];
-			for (var i = 0; i <= maxlv; i++) {
-				arry.push(i);
-			}
-			var rand = Math.floor(Math.random() * arry.length);
-			this.exclevel = this.obj.level + (arry[rand] / arry.length);
-			this.ballSpeed = Math.round(((arry[rand] / arry.length) + 1) * this.iniBallSpeed);
-		},
 		targetBallMove: function() {
 			var _this = this;
-			var bool = true;
-			var cnt = 0;
-			this.exclevel = this.obj.level;
-			this.ballOutBool = true;
-			this.excLevelFun(this.obj.ranBallCount);
-			clearInterval(this.loop);
-			if (this.ballOut >= this.obj.maxOutCount) {
-				//this.gameFinishFun();
-				return;
-			}
-			this.ballCount++;
+			var initSpeed = 2000;
+			var maxBallSpd = 165;
+			var minBallSpd = 117;
+			var subBallSpd = maxBallSpd - minBallSpd;
+			var crtSpeed = 0;
+			var lv = (function() {
+				var ary = [];
+				for (var i = _this.obj.level; i < _this.obj.level + _this.obj.ranBallCount; i++) {
+					ary.push(i);
+				}
+				var mx = Math.max.apply(null, ary);
+				var rnd = Math.floor(Math.random() * ary.length);
+				crtSpeed = Math.abs((initSpeed / ary[rnd]) - initSpeed);
+			})();
+			_this.ballSpeed = Math.round(((subBallSpd * crtSpeed) / initSpeed) + minBallSpd);
+			_this.ballOutBool = true;
+			clearInterval(_this.loop);
+			$(_this.obj.targetBall).css('opacity', 1).stop().animate({
+				'left': _this.targetZoneOffset.right + 50,
+				'transform': 'skewX(10deg) rotate(-10deg) scale(1)'
+			}, _this.aniCallb({
+				'duration': crtSpeed,
+				'complete': function() {
+					$(this).animate({ 'opacity': 0 }, {
+						'complete': function() {
+							$(this).css({
+								'left': 0,
+								'transform': 'skewX(10deg) rotate(0deg) scale(.5)'
+							});
+						}
+					});
+				}
+			}));
 			this.loop = setInterval(function() {
-				$(_this.obj.targetBall).css({
-					'left': cnt,
-				});
-				cnt += _this.exclevel + Math.abs(cnt * .02);
 				_this.targetOffset().ball();
 				var z = _this.targetZoneOffset;
 				var b = _this.targetBallOffset;
+				console.log(b.left)
 				if ((b.left >= z.left && b.right <= z.right) || ((b.left + (_this.obj.targetBallSize / 2)) >= z.left && (b.right - (_this.obj.targetBallSize / 2)) <= z.right)) {
 					$('.targetZone').css('background', 'green');
 				} else {
 					$('.targetZone').css('background', 'red');
 				}
-				if (cnt >= _this.targetZoneOffset.right) {
-					$(_this.obj.targetBall).animate({
-						'opacity': 0,
-						'left': cnt
-					}, {
-						'duration': 300,
-						'complete': function() {
-							$(this).css({
-								'left': 0,
-								'opacity': 1,
-							});
-							if (_this.ballOutBool) {
-								_this.crrtCls = 3;
-								_this.targetEffectCallb(3);
-							}
-						}
-					});
-					_this.targetOffset().ball(false);
-					clearInterval(_this.loop);
+				if (_this.targetBallOffset.left >= _this.targetZoneOffset.right + 50) {
 					setTimeout(function() {
 						_this.targetBallMove();
-					}, _this.retimeBall);
+					}, 3000);
+					if (_this.ballOutBool) {
+						_this.crrtCls = 3;
+						_this.targetEffectCallb(3);
+					}
+					clearInterval(_this.loop);
 				}
-			}, 15 / this.exclevel);
-
+			}, 1);
 			this.targetBallMoveAfter();
 		},
 		targetOffset: function() {

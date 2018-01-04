@@ -1,7 +1,6 @@
 @charset 'utf-8';
 @import url('./base.css');
 @import url('./animate.css');
-@import url('./plugin/jquery-ui.min.css');
 html, body{height: 100%;}
 *{box-sizing: border-box;}
 /*.tnd_wrap{margin-top: 15px;}
@@ -15,11 +14,11 @@ html, body{height: 100%;}
 
 .rotate{position: absolute; right: 267px; left: 237px; top: 257px; display: block; transform:  skew(-10deg) rotate(10deg); transform-origin: left top; }
 .target_ball_wrap{}
-.target_zone{width: 50px; height: 50px; position: absolute; right: 0; top: 0; background: red; transform: rotate(-20deg); transform-origin: left top; }
-.target_ball{transform: skew(10deg) rotate(0deg); transform-origin: left top; }
-.app_target_ball{transform: skew(10deg) rotate(20deg); transform-origin: left top; }
+.target_zone{width: 50px; height: 50px; position: absolute; right: 0; top: 0; background: none; transform: rotate(-20deg); transform-origin: left top; }
+.target_ball{transform: skew(10deg) rotate(0deg) scale(.5) ; transform-origin: left top; }
 .target_ball, 
-.app_target_ball{width: 5px; height: 20px; position: absolute; left: 0; top: 0; background: blue; border-radius: 50%;}
+.app_target_ball{width: 5px; height: 20px; position: absolute; left: 0; top: 0; background: url(../images/ball.png); border-radius: 50%;}
+.app_target_ball{transform: skew(10deg) rotate(20deg); transform-origin: left top; background: none;}
 .target_ball{transition: scale;}
 .target_button{width: 100px; height: 100px; background: yellow; position: absolute; right: 0; bottom: 0;}
 .anta01 {animation: anta01 2s;}

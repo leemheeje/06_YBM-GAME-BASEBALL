@@ -17,11 +17,12 @@ html, body{height: 100%;}
 .target_zone{width: 189px; height: 219px !important; position: absolute; right: 0; top: -45px; background: url(../images/target_zone.png); transform: rotate(-7deg);}
 .target_ball{transform: scale(.6) ; transform-origin: left top; }
 .target_ball, 
-.app_target_ball{width: 5px !important; height: 5px !important; position: absolute; left: 0; top: 25px; background: url(../images/ball.png); background-size: contain; border-radius: 50%;}
-.app_target_ball{left: 854px; top: 334px; background: red;}
+.app_target_ball{position: absolute; left: 0; top: 25px; background: url(../images/ball.png); background-size: contain; border-radius: 50%;}
+.app_target_ball{left: 854px; top: 334px;}
 .target_button{width: 200px; height: 208px;  position: absolute; left: 15px; bottom: 0; background: url(../images/btn_hit.png) no-repeat left top;}
 .anta01 {animation: anta01 2s;}
 .anta02{animation: anta02 2s;}
+.hit_efft{width: 221px; height: 138px; background: url(../images/hit_efft.png) no-repeat left top; position: absolute; right: 280px; top: 280px; z-index: 1; display: none;}
 .app_target_ball{display: none;}
 .target_zone_wrap{}
 .target_zone_guide{position: absolute; right: -43px; top: 133px; width: 260px; height: 283px; background: red; opacity: 0; }

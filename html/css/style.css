@@ -15,9 +15,10 @@ html, body{height: 100%;}
 .rotate{position: absolute; right: 267px; left: 237px; top: 257px; display: block; transform:  skew(0deg) rotate(0); transform-origin: left top; }
 .target_ball_wrap{}
 .target_zone{width: 189px; height: 219px !important; position: absolute; right: 0; top: -45px; background: url(../images/target_zone.png); transform: rotate(-7deg);}
-.target_ball{transform: scale(.6) ; transform-origin: left top; }
+.target_ball{transform: scale(.6) ; transform-origin: left top; display: none;}
 .target_ball, 
 .app_target_ball{position: absolute; left: 0; top: 25px; background: url(../images/ball.png); background-size: contain; border-radius: 50%;}
+.target_ball{left: -40px;}
 .app_target_ball{left: 854px; top: 334px;}
 .target_button{width: 200px; height: 208px;  position: absolute; left: 15px; bottom: 0; background: url(../images/btn_hit.png) no-repeat left top;}
 .anta01 {animation: anta01 2s;}
@@ -61,6 +62,7 @@ html, body{height: 100%;}
 .txt_wrap[data-swing-txt="2"]{background-image: url(../images/clb01.png);}
 .txt_wrap[data-swing-txt="3"]{background-image: url(../images/clb04.png);}
 .txt_wrap[data-swing-txt="4"]{background-image: url(../images/clb04.png);}
+.app_target_ball.anta{transform:  translateY(200px);}
 /*
 .homerun{ 
  animation: animationFrames linear 4s;

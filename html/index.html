@@ -39,7 +39,6 @@
 				<div class="taPop"></div>
 			</div>
 			<div class="txt_wrap swingDataTxt" data-swing-txt="0"> </div>
-			<div class="app_target_ball appTargetBall homerun" style="width: 81px; height: 81px; display: block;" data-act-ball="3"></div>
 		</div>
 		<!-- 게임 공통 : S -->
 		<div id="ybm_game_2_ready" class="game_ready">
@@ -67,12 +66,6 @@
 			<span class="pop_img popMissImg"></span>
 		</div>
 	</div>
-	<style type="text/css">
-	.asdf {
-		position: absolute;
-		right: 0;
-	}
-	</style>
 	<script type="text/javascript">
 	//var gamePath = Game.gamePath[Game.gameCode]; //폴더경로 변경값
 	var HitBall = function(obj) {
@@ -91,6 +84,7 @@
 				out: 5
 			}
 		}, obj);
+		this.ballcnt = 0;
 		this.targetButton = '.targetButton';
 		this.appTargetBall = '.appTargetBall';
 		this.targetGiudeLine = '.targetGiudeLine';
@@ -125,9 +119,9 @@
 			//물엇을때 , 성공햇을때, 포인트
 			lst: ['.sndLst.tp01', '.sndLst.tp02', '.sndLst.tp03'],
 		};
-		//this.init();
+		this.init();
 		//this.appTargetBallMotion($(this.appTargetBall + '[data-act-ball="3"]'), this.crrtCls);
-		this.appTargetBallMotion($(this.appTargetBall + '[data-act-ball="3"]'), 2);
+		//this.appTargetBallMotion($(this.appTargetBall + '[data-act-ball="3"]'), 2);
 	};
 	HitBall.prototype = {
 		init: function() {
@@ -136,13 +130,17 @@
 			this.bind();
 		},
 		set: function() {
+			var _this =this;
 			this.scoreset([
 				[this.taPaul, this.obj.limit.poul],
 				[this.taOut, this.obj.limit.out]
 			]);
 			this.targetOffset().zone();
 			this.targetOffset().ball();
-			this.targetBallMove(this.obj.level);
+			setTimeout(function(){
+				$(_this.obj.targetBall).show();
+				_this.targetBallMove(_this.obj.level);
+			}, 2000);
 		},
 		scoreset: function(ob) {
 			for (var i = 0; i < ob.length; i++) {
@@ -206,15 +204,19 @@
 			switch (this.crrtCls) {
 				case 1: //홈런
 					this.ballScore += 100;
+					clsn = 'homerun';
 					break;
 				case 2: //안타
 					this.ballScore += 10;
+					clsn = 'anta';
 					break;
 				case 3: //아웃
 					this.ballOut += 1;
+					clsn = 'out';
 					break;
 				case 4: //파울
 					this.ballPaul += 1;
+					clsn = 'foul';
 					if (this.ballPaul == 2) {
 						this.ballOut += 1;
 						this.ballPaul = 0;
@@ -246,17 +248,20 @@
 				dx: .1,
 				dy: .1,
 				gravity: 1,
-				anta: {
-
+				onlyanta: {
+					x: 10,
+					y: 3,
+					dy: 1,
+					gravity: .5,
 				},
 				motFun: function() {
 					var mt = null;
 					switch (crtcls) {
 						case 1: //홈런
 							mt = function() {
-								_this.ballmotion.x += 7;
+								_this.ballmotion.x += 8;
 								_this.ballmotion.gravity += _this.ballmotion.dy;
-								if (_this.ballmotion.y > 120) {
+								if (_this.ballmotion.y > 130) {
 									_this.ballmotion.dy = -.1;
 								}
 								_this.ballmotion.y += _this.ballmotion.gravity;
@@ -264,15 +269,29 @@
 									clearInterval(_this.ballmotInterv);
 									_this.ballmotion.el.hide();
 								}
+								if(_this.ballmotion.x > 700){
+									_this.ballmotion.el.animate({
+										'opacity' : 0
+									}, 'fast');
+								}
 							};
 							break;
 						case 2: //안타
 							mt = function() {
-								_this.ballmotion.x += 10;
-								_this.ballmotion.y += 20;
-								if (_this.ballmotion.elpos.left < _this.ballmotion.x || _this.ballmotion.elpos.top < _this.ballmotion.y || 0 > _this.ballmotion.x) {
+								_this.ballmotion.onlyanta.x += 3;
+								_this.ballmotion.onlyanta.dy += _this.ballmotion.onlyanta.gravity;
+								if (_this.ballmotion.onlyanta.y > 150 || _this.ballmotion.onlyanta.y < 0) {
+									_this.ballmotion.onlyanta.dy = -(_this.ballmotion.onlyanta.dy - _this.ballmotion.onlyanta.gravity);
+								}
+								_this.ballmotion.onlyanta.y += _this.ballmotion.onlyanta.dy;
+								if (_this.ballmotion.elpos.left < _this.ballmotion.onlyanta.x) {
 									clearInterval(_this.ballmotInterv);
 									_this.ballmotion.el.hide();
+								}
+								if(_this.ballmotion.onlyanta.x > 400){
+									_this.ballmotion.el.animate({
+										'opacity' : 0
+									}, 'slow');
 								}
 							};
 							break;
@@ -284,6 +303,11 @@
 									_this.ballmotion.dy = -.1;
 								}
 								_this.ballmotion.y += _this.ballmotion.gravity;
+								if(_this.ballmotion.y < 0){
+									_this.ballmotion.el.animate({
+										'opacity' : 0
+									}, 'fast');
+								}
 							};
 							break;
 					}
@@ -295,21 +319,31 @@
 		},
 		appTargetBallInterval: function() {
 			var _this = this;
-			this.ballmotInterv = null;
+			clearInterval(this.ballmotInterv);
 			this.ballmotInterv = setInterval(function() {
 				_this.ballmotion.motFun();
 				_this.appTargetBallMove();
 			}, 10);
 		},
 		appTargetBallMove: function() {
-			this.ballmotion.el.css({
-				'left': this.ballmotion.elpos.left - this.ballmotion.x,
-				'top': this.ballmotion.elpos.top - this.ballmotion.y,
-				// 'width': (this.obj.targetBallSize * (this.ballmotion.elpos.left - this.ballmotion.x)) / this.ballmotion.elpos.left,
-				// 'height': (this.obj.targetBallSize * (this.ballmotion.elpos.left - this.ballmotion.x)) / this.ballmotion.elpos.left,
-				'width': (this.obj.targetBallSize * (1300 - this.ballmotion.x)) / 1300,
-				'height': (this.obj.targetBallSize * (1300 - this.ballmotion.x)) / 1300,
-			});
+			if (this.ballmotion.cls != 2) {
+				this.ballmotion.el.css({
+					'left': this.ballmotion.elpos.left - this.ballmotion.x,
+					'top': this.ballmotion.elpos.top - this.ballmotion.y,
+					// 'width': (this.obj.targetBallSize * (this.ballmotion.elpos.left - this.ballmotion.x)) / this.ballmotion.elpos.left,
+					// 'height': (this.obj.targetBallSize * (this.ballmotion.elpos.left - this.ballmotion.x)) / this.ballmotion.elpos.left,
+					'width': (this.obj.targetBallSize * (1300 - this.ballmotion.x)) / 1300,
+					'height': (this.obj.targetBallSize * (1300 - this.ballmotion.x)) / 1300,
+				});
+			} else {
+				var _this = this;
+				this.ballmotion.el.css({
+					'left': this.ballmotion.elpos.left - this.ballmotion.onlyanta.x,
+					'top': this.ballmotion.onlyanta.y,
+					'width': (this.obj.targetBallSize * ((this.ballmotion.elpos.left) - this.ballmotion.onlyanta.x)) / this.ballmotion.elpos.left,
+					'height': (this.obj.targetBallSize * (this.ballmotion.elpos.left - this.ballmotion.onlyanta.x)) / this.ballmotion.elpos.left,
+				});
+			}
 		},
 		swingTxtFun: function() {
 			var _this = this;
@@ -358,7 +392,7 @@
 			var maxBallSpd = 165;
 			var minBallSpd = 117;
 			var subBallSpd = maxBallSpd - minBallSpd;
-			var crtSpeed = 0;
+			var crtSpeed = 1000;
 			var lv = (function() {
 				var ary = [];
 				for (var i = _this.obj.level; i < _this.obj.level + _this.obj.ranBallCount; i++) {
@@ -369,10 +403,28 @@
 				crtSpeed = Math.abs((initSpeed / ary[rnd]) - initSpeed);
 				console.log(_this.obj.ranBallCount)
 			})();
-			_this.ballSpeed = Math.round(((subBallSpd * crtSpeed) / initSpeed) + minBallSpd);
+			_this.ballcnt++;
+			switch (_this.ballcnt) {
+				case 1:
+					_this.crtSpeed = crtSpeed;
+					break;
+				case 2:
+					_this.crtSpeed = crtSpeed + 250;
+					break;
+				case 3:
+					_this.crtSpeed = crtSpeed - 650;
+					break;
+				case 4:
+					_this.crtSpeed = crtSpeed + 90;
+					_this.ballcnt = 0;
+					break;
+			}
+
+
+			_this.ballSpeed = Math.round(((subBallSpd * _this.crtSpeed) / initSpeed) + minBallSpd);
 			_this.ballOutBool = true;
 			_this.ballCount++;
-			_this.loop = null;
+			_this.loop = '';
 			if (_this.ballOut >= _this.obj.maxOutCount) {
 				this.gameFinishFun();
 				return;
@@ -382,12 +434,12 @@
 				'left': _this.targetZoneOffset.right,
 				'transform': 'scale(1)'
 			}, _this.aniCallb({
-				'duration': crtSpeed - 500,
+				'duration': 800,
 				'complete': function() {
 					$(this).animate({ 'opacity': 0 }, {
 						'complete': function() {
 							$(this).css({
-								'left': 0,
+								'left': -40,
 								'transform': 'scale(.6)'
 							});
 						}
@@ -401,7 +453,7 @@
 					setTimeout(function() {
 						_this.targetGiudeLineFun('init');
 						_this.targetBallMove();
-					}, crtSpeed);
+					}, 3000);
 					if (_this.ballOutBool) {
 						_this.crrtCls = 3;
 						_this.targetEffectCallb(3);
@@ -495,8 +547,7 @@
 		hitball = new HitBall({
 			maxGamePoint: 25
 		});
-		console.log(hitball)
-	}).click();
+	});
 	//끝났을때
 	//cny 마지막 Next버튼 클릭시 LMS에 값 저장하기
 	$('#game_2_over').off().click(function() {

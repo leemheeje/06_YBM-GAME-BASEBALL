@@ -28,17 +28,20 @@
 					<div class="target_ball targetBall"></div>
 				</div>
 			</div>
-			<a href="#;" class="target_button targetButton"></a>
+			<div class="target_button targetButton"></div>
 			<div class="taza_area tazaMotionImg" data-motion-img="0"></div>
 			<div class="tusu_area tusuMotionImg" data-motion-img="0"></div>
 			<div class="ta_wrap">
-				<div class="taScore">120</div>
+				<div class="taScore">0</div>
 				<div class="taPaul"> </div>
 				<div class="taOut"> </div>
-				<div class="taSpeed">123</div>
+				<div class="taSpeed">0</div>
 				<div class="taPop"></div>
 			</div>
 			<div class="txt_wrap swingDataTxt" data-swing-txt="0"> </div>
+		</div>
+		<div class="hit_timer">
+			<span class="hitTimerTxt"></span>
 		</div>
 		<!-- 게임 공통 : S -->
 		<div id="ybm_game_2_ready" class="game_ready">
@@ -70,6 +73,7 @@
 	//var gamePath = Game.gamePath[Game.gameCode]; //폴더경로 변경값
 	var HitBall = function(obj) {
 		this.obj = $.extend(true, {
+			startSecond: 3,
 			targetZone: '.targetZone',
 			targetZoneSize: 189,
 			maxGamePoint: 25,
@@ -119,7 +123,25 @@
 			//물엇을때 , 성공햇을때, 포인트
 			lst: ['.sndLst.tp01', '.sndLst.tp02', '.sndLst.tp03'],
 		};
-		this.init();
+		if (this.obj.startSecond) {
+			var _this = this;
+			var secd = 0;
+			var stTimer = null;
+			var vSratSec = _this.obj.startSecond ;
+			stTimer = setInterval(function() {
+				$('.hitTimerTxt').text(vSratSec - secd);
+				if (secd == _this.obj.startSecond) {
+					_this.init();
+					clearInterval(stTimer);
+					$('.hitTimerTxt').parent().hide();
+				}
+				secd++;
+			}, 1000);
+		} else {
+			this.init();
+		}
+
+
 		//this.appTargetBallMotion($(this.appTargetBall + '[data-act-ball="3"]'), this.crrtCls);
 		//this.appTargetBallMotion($(this.appTargetBall + '[data-act-ball="3"]'), 2);
 	};
@@ -130,14 +152,14 @@
 			this.bind();
 		},
 		set: function() {
-			var _this =this;
+			var _this = this;
 			this.scoreset([
 				[this.taPaul, this.obj.limit.poul],
 				[this.taOut, this.obj.limit.out]
 			]);
 			this.targetOffset().zone();
 			this.targetOffset().ball();
-			setTimeout(function(){
+			setTimeout(function() {
 				$(_this.obj.targetBall).show();
 				_this.targetBallMove(_this.obj.level);
 			}, 2000);
@@ -269,9 +291,9 @@
 									clearInterval(_this.ballmotInterv);
 									_this.ballmotion.el.hide();
 								}
-								if(_this.ballmotion.x > 700){
+								if (_this.ballmotion.x > 700) {
 									_this.ballmotion.el.animate({
-										'opacity' : 0
+										'opacity': 0
 									}, 'fast');
 								}
 							};
@@ -288,9 +310,9 @@
 									clearInterval(_this.ballmotInterv);
 									_this.ballmotion.el.hide();
 								}
-								if(_this.ballmotion.onlyanta.x > 400){
+								if (_this.ballmotion.onlyanta.x > 400) {
 									_this.ballmotion.el.animate({
-										'opacity' : 0
+										'opacity': 0
 									}, 'slow');
 								}
 							};
@@ -303,9 +325,9 @@
 									_this.ballmotion.dy = -.1;
 								}
 								_this.ballmotion.y += _this.ballmotion.gravity;
-								if(_this.ballmotion.y < 0){
+								if (_this.ballmotion.y < 0) {
 									_this.ballmotion.el.animate({
-										'opacity' : 0
+										'opacity': 0
 									}, 'fast');
 								}
 							};
@@ -330,8 +352,6 @@
 				this.ballmotion.el.css({
 					'left': this.ballmotion.elpos.left - this.ballmotion.x,
 					'top': this.ballmotion.elpos.top - this.ballmotion.y,
-					// 'width': (this.obj.targetBallSize * (this.ballmotion.elpos.left - this.ballmotion.x)) / this.ballmotion.elpos.left,
-					// 'height': (this.obj.targetBallSize * (this.ballmotion.elpos.left - this.ballmotion.x)) / this.ballmotion.elpos.left,
 					'width': (this.obj.targetBallSize * (1300 - this.ballmotion.x)) / 1300,
 					'height': (this.obj.targetBallSize * (1300 - this.ballmotion.x)) / 1300,
 				});
@@ -401,7 +421,6 @@
 				var mx = Math.max.apply(null, ary);
 				var rnd = Math.floor(Math.random() * ary.length);
 				crtSpeed = Math.abs((initSpeed / ary[rnd]) - initSpeed);
-				console.log(_this.obj.ranBallCount)
 			})();
 			_this.ballcnt++;
 			switch (_this.ballcnt) {
@@ -425,7 +444,7 @@
 			_this.ballOutBool = true;
 			_this.ballCount++;
 			_this.loop = '';
-			if (_this.ballOut >= _this.obj.maxOutCount) {
+			if (_this.ballOut >= _this.obj.maxOutCount || _this.ballScore > 1000) {
 				this.gameFinishFun();
 				return;
 			}
